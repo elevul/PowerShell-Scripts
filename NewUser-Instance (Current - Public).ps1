@@ -30,10 +30,6 @@ try {
     #Checking if the user exists and if it does indicate that the user exists and quit. If not, fail to the catch block.
     $user = Get-ADUser $usercheck -ErrorAction Stop
     Write-Warning "$usercheck already exists. No action required"
-    $existinguser = Get-ADUser -Identity "$user" -Properties *
-    $existinguser
-    $existinguseremail = $existinguser.EmailAddress
-    Get-MsolUser -UserPrincipalName "$existinguseremail" | Format-List UserPrincipalName, DisplayName, isLicensed, Licenses
 }
 catch {
     #Asking for the user to use as template and preparing the template
@@ -96,10 +92,14 @@ catch {
     
     #Waiting for settings to be applied
     Start-Sleep -Seconds 10
-    
-    #Showing end result of changes
-    Get-ADUser -Identity "$usercheck" -Properties *    
-    Get-MsolUser -UserPrincipalName "$email" | Format-List UserPrincipalName, DisplayName, isLicensed, Licenses
+}
+finally {
+    #Showing end results regardless of outcome
+    $user = Get-ADUser $usercheck -ErrorAction Stop
+    $existinguser = Get-ADUser -Identity "$usercheck" -Properties *
+    $existinguser
+    $existinguseremail = $existinguser.EmailAddress
+    Get-MsolUser -UserPrincipalName "$existinguseremail" | Format-List UserPrincipalName, DisplayName, isLicensed, Licenses
 }
 
 Stop-Transcript
